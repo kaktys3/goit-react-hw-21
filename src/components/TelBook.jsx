@@ -1,4 +1,5 @@
 import { useState, useEffect, useReducer } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import './TelBook.css'
 
 const ContactList = ({ name, number, filter, delet }) => {
@@ -28,78 +29,53 @@ const ContactList = ({ name, number, filter, delet }) => {
     )
 }
 
-const initialState = {
-    name: '',
-    number: '',
-    filter: '',
-    contacts: []
-}
-
-function reduser(state, action) {
-    switch (action.type) {
-        case 'handelChang':
-            return {
-                ...state,
-                [action.payload.name]: action.payload.value
-            }
-
-        case 'Submit':
-            return {
-                ...state,
-                contacts: [...state.contacts, { name: state.name, number: state.number }],
-                name: '',
-                number: ''
-            }
-
-        case 'delete':
-            return {
-                ...state,
-                contacts: action.payload
-            }
-
-        case "SET_DATA":
-            return {
-                ...state,
-                contacts: action.payload
-            }
-
-            default: throw new Error();
-    }
-}
-
 export default function TelBook() {
-    const [state, dispatch] = useReducer(reduser, initialState)
+    const [name, setName] = useState('')
+    const [number, setNumber] = useState()
+    const tell = useSelector(state => state.contacts)
+    const filter = useSelector(state => state.filter)
+    const dispatch = useDispatch()
+
+    const addContact = (name, number) => {
+        dispatch({
+            type: 'ADD_CONTACT',
+            payload: {
+                name: name,
+                number: number
+            }
+        })
+    }
+
+    const deletContact = (name) => {
+        dispatch({
+            type: 'REOMOVE_CONTACT',
+            payload: name
+        })
+    }
+
+    const addFilter = (filter) => {
+        dispatch({
+            type: 'ADD_FILTER',
+            payload: filter
+        })
+    }
 
     useEffect(() => {
-        const dataContacts = localStorage.getItem('contacts')
-
-        if (dataContacts) {
-            dispatch({
-                type: 'SET_DATA',
-                payload: JSON.parse(dataContacts)
-            })
-        }
-    }, [])
-
-    useEffect(() => {
-        localStorage.setItem('contacts', JSON.stringify(state.contacts))
-    }, [state.contacts])
+        localStorage.setItem('contacts', JSON.stringify(tell))
+    }, [tell])
 
 
     const handleSubmit = (e) => {
         e.preventDefault()
 
-        if (state.contacts.some(contact => contact.name === state.name)) {
-            return alert(`${state.name} is already in contacts`)
+        if (tell.some(contact => contact.name === name)) {
+            return alert(`${name} is already in contacts`)
         } else {
-            dispatch({ type: 'Submit' })
+            addContact(name, number)
+            setName('')
+            setNumber('')
         }
 
-    }
-
-    const isDelet = (eDelet) => {
-        const newList = state.contacts.filter(e => e.name != eDelet)
-        dispatch({ type: 'delete', payload: newList })
     }
 
     return (
@@ -109,8 +85,8 @@ export default function TelBook() {
                 <label className='tel-name'>
                     Name
                     <input
-                        onChange={(e) => dispatch({ type: 'handelChang', payload: { name: e.target.name, value: e.target.value } })}
-                        value={state.name}
+                        onChange={(e) => setName(e.target.value)}
+                        value={name}
                         type="text"
                         name="name"
                         pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
@@ -122,8 +98,8 @@ export default function TelBook() {
                 <label className='tel-number'>
                     Number
                     <input
-                        onChange={(e) => dispatch({ type: 'handelChang', payload: { name: e.target.name, value: e.target.value } })}
-                        value={state.number}
+                        onChange={(e) => setNumber(e.target.value)}
+                        value={number}
                         type="tel"
                         name="number"
                         pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
@@ -136,11 +112,11 @@ export default function TelBook() {
             <h1>Contacts</h1>
             <div>
                 <p>Find contacts by name</p>
-                <input type="text" name='filter' onChange={(e) => dispatch({ type: 'handelChang', payload: { name: e.target.name, value: e.target.value } })} />
+                <input type="text" name='filter' onChange={(e) => addFilter(e.target.value)} />
             </div>
             <ul className="tel-list">
-                {state.contacts.map((contact, index) => (
-                    <ContactList key={index} filter={state.filter} delet={isDelet} name={contact.name} number={contact.number} />
+                {tell && tell.map((contact, index) => (
+                    <ContactList key={index} filter={filter} delet={deletContact} name={contact.name} number={contact.number} />
                 ))}
             </ul>
         </>
