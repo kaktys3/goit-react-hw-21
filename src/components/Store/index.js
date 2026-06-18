@@ -1,4 +1,8 @@
-import {createStore} from 'redux'
-import { telReducer } from './contacOperation.js'
+import { configureStore } from '@reduxjs/toolkit'
+import telReducer from './contacOperation.js'
 
-export const store = createStore(telReducer)
+export const store = configureStore({
+    reducer: {
+        tell: telReducer
+    }
+})

@@ -1,5 +1,6 @@
-import { useState, useEffect, useReducer } from 'react';
+import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import {addContact, removeContacts, addFilter} from './Store/contacOperation.js'
 import './TelBook.css'
 
 const ContactList = ({ name, number, filter, delet }) => {
@@ -32,32 +33,20 @@ const ContactList = ({ name, number, filter, delet }) => {
 export default function TelBook() {
     const [name, setName] = useState('')
     const [number, setNumber] = useState()
-    const tell = useSelector(state => state.contacts)
-    const filter = useSelector(state => state.filter)
+    const tell = useSelector(state => state.tell.contacts)
+    const filter = useSelector(state => state.tell.filter)
     const dispatch = useDispatch()
 
-    const addContact = (name, number) => {
-        dispatch({
-            type: 'ADD_CONTACT',
-            payload: {
-                name: name,
-                number: number
-            }
-        })
+    const addContacts = (name, number) => {
+        dispatch(addContact({name: name, number: number}))
     }
 
     const deletContact = (name) => {
-        dispatch({
-            type: 'REOMOVE_CONTACT',
-            payload: name
-        })
+        dispatch(removeContacts(name))
     }
 
-    const addFilter = (filter) => {
-        dispatch({
-            type: 'ADD_FILTER',
-            payload: filter
-        })
+    const addFilters = (filter) => {
+        dispatch(addFilter(filter))
     }
 
     useEffect(() => {
@@ -71,7 +60,7 @@ export default function TelBook() {
         if (tell.some(contact => contact.name === name)) {
             return alert(`${name} is already in contacts`)
         } else {
-            addContact(name, number)
+            addContacts(name, number)
             setName('')
             setNumber('')
         }
@@ -112,7 +101,7 @@ export default function TelBook() {
             <h1>Contacts</h1>
             <div>
                 <p>Find contacts by name</p>
-                <input type="text" name='filter' onChange={(e) => addFilter(e.target.value)} />
+                <input type="text" name='filter' onChange={(e) => addFilters(e.target.value)} />
             </div>
             <ul className="tel-list">
                 {tell && tell.map((contact, index) => (

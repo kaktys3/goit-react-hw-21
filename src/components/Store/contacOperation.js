@@ -1,32 +1,29 @@
+import { createSlice } from "@reduxjs/toolkit"
+
 const dataContacts = localStorage.getItem('contacts')
 
-const defoltStore = {
+const initialState = {
     filter: '',
     contacts: dataContacts ? JSON.parse(dataContacts) : []
 }
 
-export const telReducer = (state = defoltStore, action) => {
-    switch (action.type) {
-        case 'ADD_CONTACT':
-            return {
-                ...state,
-                contacts: [...state.contacts, action.payload]
-            }
+const telReducer = createSlice({
+    name: 'tell',
+    initialState,
+    reducers: {
+        addContact: (state, action) => {
+            state.contacts.push(action.payload)
+        },
 
-        case 'REOMOVE_CONTACT':
-            return {
-                ...state,
-                contacts: state.contacts.filter(e => e.name != action.payload)
-            }
+        removeContacts: (state, action) => {
+            state.contacts = state.contacts.filter(e => e.name != action.payload)
+        },
 
-        case 'ADD_FILTER':
-            return {
-                ...state,
-                filter: action.payload
-            }
-
-        default:
-            return state
+        addFilter: (state, action) => {
+            state.filter = action.payload
+        }
     }
-}
+})
 
+export const {addContact, removeContacts, addFilter} =  telReducer.actions
+export default telReducer.reducer
