@@ -1,10 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit"
 
-const dataContacts = localStorage.getItem('contacts')
-
 const initialState = {
     filter: '',
-    contacts: dataContacts ? JSON.parse(dataContacts) : []
+    contacts: []
 }
 
 const telReducer = createSlice({
