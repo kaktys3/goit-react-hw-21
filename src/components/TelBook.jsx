@@ -33,9 +33,10 @@ const ContactList = ({ name, number, filter, delet }) => {
 export default function TelBook() {
     const [name, setName] = useState('')
     const [number, setNumber] = useState()
-    const tell = useSelector(state => state.tell.contacts)
-    const filter = useSelector(state => state.tell.filter)
+    const tell = useSelector(state => state.tellBook.contacts)
+    const filter = useSelector(state => state.tellBook.filter)
     const dispatch = useDispatch()
+    console.log(tell)
 
     const addContacts = (name, number) => {
         dispatch(addContact({name: name, number: number}))
@@ -48,10 +49,6 @@ export default function TelBook() {
     const addFilters = (filter) => {
         dispatch(addFilter(filter))
     }
-
-    useEffect(() => {
-        localStorage.setItem('contacts', JSON.stringify(tell))
-    }, [tell])
 
 
     const handleSubmit = (e) => {
