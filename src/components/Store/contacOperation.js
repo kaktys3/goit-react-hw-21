@@ -1,8 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit"
+import { fetchContacts } from "./fetchContacts"
+import axios from "axios"
 
 const initialState = {
     filter: '',
-    contacts: []
+    contacts: [],
+    loading: false,
+    error: null
 }
 
 const telReducer = createSlice({
@@ -11,6 +15,11 @@ const telReducer = createSlice({
     reducers: {
         addContact: (state, action) => {
             state.contacts.push(action.payload)
+            const contactDataPush = async () => {
+                await axios.post('https://6a51d80bc576c846dcba90c4.mockapi.io/contact/contacts', action.payload)
+            }
+
+            contactDataPush()
         },
 
         removeContacts: (state, action) => {
@@ -20,8 +29,26 @@ const telReducer = createSlice({
         addFilter: (state, action) => {
             state.filter = action.payload
         }
+    },
+
+    extraReducers: (builder) => {
+        builder
+            .addCase(fetchContacts.pending, (state) => {
+                state.loading = true
+            })
+
+            .addCase(fetchContacts.fulfilled, (state, action) => {
+                state.contacts = action.payload
+                state.loading = false
+                console.log(action.payload)
+            })
+
+            .addCase(fetchContacts.rejected, (state, action) => {
+                state.loading = false
+                state.error = action.payload
+            })
     }
 })
 
-export const {addContact, removeContacts, addFilter} =  telReducer.actions
+export const { addContact, removeContacts, addFilter } = telReducer.actions
 export default telReducer.reducer

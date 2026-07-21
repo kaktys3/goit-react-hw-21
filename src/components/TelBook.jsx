@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {addContact, removeContacts, addFilter} from './Store/contacOperation.js'
 import './TelBook.css'
+import { contactDataRemove, fetchContacts } from './Store/fetchContacts.jsx';
 
-const ContactList = ({ name, number, filter, delet }) => {
+const ContactList = ({ name, number, filter, delet, id }) => {
     const filterList = () => {
         const lengthText = filter.length
         const listString = name.slice(0, lengthText)
@@ -24,7 +25,7 @@ const ContactList = ({ name, number, filter, delet }) => {
         <>
             <div className='contact-box' style={filterList() ? { display: 'flex' } : { display: 'none' }}>
                 <li className='contact'>{`${name} ${number}`}</li>
-                <button onClick={() => delet(name)}>видалити контакт</button>
+                <button onClick={() => delet(name, id)}>видалити контакт</button>
             </div>
         </>
     )
@@ -33,23 +34,23 @@ const ContactList = ({ name, number, filter, delet }) => {
 export default function TelBook() {
     const [name, setName] = useState('')
     const [number, setNumber] = useState()
-    const tell = useSelector(state => state.tellBook.contacts)
-    const filter = useSelector(state => state.tellBook.filter)
+    const tell = useSelector(state => state.tell.contacts)
+    const filter = useSelector(state => state.tell.filter)
     const dispatch = useDispatch()
     console.log(tell)
 
     const addContacts = (name, number) => {
-        dispatch(addContact({name: name, number: number}))
+        dispatch(addContact({name: name, number: number, id: tell.length + 1}))
     }
 
-    const deletContact = (name) => {
+    const deletContact = (name, id) => {
         dispatch(removeContacts(name))
+        dispatch(contactDataRemove(id))
     }
 
     const addFilters = (filter) => {
         dispatch(addFilter(filter))
     }
-
 
     const handleSubmit = (e) => {
         e.preventDefault()
@@ -63,6 +64,10 @@ export default function TelBook() {
         }
 
     }
+
+    useEffect(() => {
+        dispatch(fetchContacts())
+    }, [])
 
     return (
         <>
@@ -102,7 +107,7 @@ export default function TelBook() {
             </div>
             <ul className="tel-list">
                 {tell && tell.map((contact, index) => (
-                    <ContactList key={index} filter={filter} delet={deletContact} name={contact.name} number={contact.number} />
+                    <ContactList key={index} filter={filter} delet={deletContact} name={contact.name} number={contact.number} id={contact.id} />
                 ))}
             </ul>
         </>
