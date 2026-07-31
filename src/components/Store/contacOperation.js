@@ -40,7 +40,6 @@ const telReducer = createSlice({
             .addCase(fetchContacts.fulfilled, (state, action) => {
                 state.contacts = action.payload
                 state.loading = false
-                console.log(action.payload)
             })
 
             .addCase(fetchContacts.rejected, (state, action) => {
