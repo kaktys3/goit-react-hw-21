@@ -1,16 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { addContact, removeContacts, addFilter } from './Store/contacOperation.js'
+import { addFilter } from './Store/contacOperation.js'
 import './TelBook.css'
-import { contactDataRemove, fetchContacts } from './Store/fetchContacts.jsx';
-import { filterList, filterSelector, tellSelector } from './Store/tellBookSelector.js';
+import { contactDataRemove, fetchContacts, pushContact } from './Store/fetchContacts.jsx';
+import { filterList, selectAllContacts} from './Store/tellBookSelector.js';
 
-const ContactList = ({ name, number, delet, id }) => {
+const ContactList = ({ name, number, id }) => {
+      const dispatch = useDispatch()
+
     return (
         <>
             <div className='contact-box' >
                 <li className='contact'>{`${name} ${number}`}</li>
-                <button onClick={() => delet(name, id)}>видалити контакт</button>
+                <button onClick={() => dispatch(contactDataRemove(id))}>видалити контакт</button>
             </div>
         </>
     )
@@ -19,22 +21,12 @@ const ContactList = ({ name, number, delet, id }) => {
 export default function TelBook() {
     const [name, setName] = useState('')
     const [number, setNumber] = useState()
-    const tell = useSelector(tellSelector)
-    const filter = useSelector(filterSelector)
+    const tell = useSelector(selectAllContacts)
     const list = useSelector(filterList)
     const dispatch = useDispatch()
 
     const addContacts = (name, number) => {
-        dispatch(addContact({ name: name, number: number, id: tell.length + 1 }))
-    }
-
-    const deletContact = (name, id) => {
-        dispatch(removeContacts(name))
-        dispatch(contactDataRemove(id))
-    }
-
-    const addFilters = (filter) => {
-        dispatch(addFilter(filter))
+        dispatch(pushContact({ name: name, number: number}))
     }
 
     const handleSubmit = (e) => {
@@ -88,11 +80,11 @@ export default function TelBook() {
             <h1>Contacts</h1>
             <div>
                 <p>Find contacts by name</p>
-                <input type="text" name='filter' onChange={(e) => addFilters(e.target.value)} />
+                <input type="text" name='filter' onChange={(e) => dispatch(addFilter(e.target.value))} />
             </div>
             <ul className="tel-list">
             {list.map((contact, index) => (
-                <ContactList key={index} delet={deletContact} name={contact.name} number={contact.number} id={contact.id} />
+                <ContactList key={index} name={contact.name} number={contact.number} id={contact.id} />
                 ))}
             </ul>
         </>
