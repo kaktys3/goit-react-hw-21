@@ -1,53 +1,54 @@
-import { createSlice } from "@reduxjs/toolkit"
-import { fetchContacts } from "./fetchContacts"
-import axios from "axios"
+import { createEntityAdapter, createSlice } from "@reduxjs/toolkit"
+import { contactDataRemove, fetchContacts, pushContact } from "./fetchContacts"
 
-const initialState = {
-    filter: '',
-    contacts: [],
-    loading: false,
-    error: null
-}
+export  const tellBooks = createEntityAdapter({})
 
 const telReducer = createSlice({
     name: 'tell',
-    initialState,
+    initialState: tellBooks.getInitialState({
+        filter: '',
+        loading: false,
+        error: null
+    }),
     reducers: {
-        addContact: (state, action) => {
-            state.contacts.push(action.payload)
-            const contactDataPush = async () => {
-                await axios.post('https://6a51d80bc576c846dcba90c4.mockapi.io/contact/contacts', action.payload)
-            }
-
-            contactDataPush()
-        },
-
-        removeContacts: (state, action) => {
-            state.contacts = state.contacts.filter(e => e.name != action.payload)
-        },
-
-        addFilter: (state, action) => {
+        addFilter(state, action) {
             state.filter = action.payload
         }
     },
 
     extraReducers: (builder) => {
         builder
-            .addCase(fetchContacts.pending, (state) => {
-                state.loading = true
-            })
-
             .addCase(fetchContacts.fulfilled, (state, action) => {
-                state.contacts = action.payload
+                tellBooks.setAll(state, action.payload)
                 state.loading = false
             })
 
-            .addCase(fetchContacts.rejected, (state, action) => {
+            .addCase(pushContact.fulfilled, (state, action) => {
                 state.loading = false
-                state.error = action.payload
+                tellBooks.setAll(state, action.payload)
+                console.log(state)
             })
+
+            .addCase(contactDataRemove.fulfilled, (state, action) => {
+                 state.loading = false
+                tellBooks.setAll(state, action.payload)
+            })
+
+            .addMatcher(
+                (action) => action.type.endsWith('/rejected'),
+                (state, action) => {
+                    state.loading = false
+                    state.error = action.payload
+                }
+            )
+
+            .addMatcher(
+                (action) => action.type.endsWith('/pending'),
+                (state) => {
+                    state.loading = true
+                }
+            )
     }
 })
-
-export const { addContact, removeContacts, addFilter } = telReducer.actions
+export const { addFilter } = telReducer.actions
 export default telReducer.reducer
