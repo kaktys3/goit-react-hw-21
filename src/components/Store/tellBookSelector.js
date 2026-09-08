@@ -5,6 +5,8 @@ import { tellBooks } from "./contacOperation";
 
 export const selectTellState = (state) => state.tell
 export const filterSelector = (state) => state.tell.filter
+export const isRegister = (state) => state.tell.register
+export const isLogin = (state) => state.tell.login
 
 export const {
     selectAll: selectAllContacts,
@@ -19,7 +21,7 @@ export const filterList = createSelector(
     [selectAllContacts, filterSelector],
     (contacts, filter) => {
         const lengthText = filter.length
-        const listString = contacts.filter((e) => e.name.slice(0, lengthText) === filter)
+        const listString =  contacts.filter((e) => e.name.slice(0, lengthText) === filter)
 
         if (listString) {
             return listString
