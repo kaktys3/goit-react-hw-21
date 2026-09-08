@@ -1,0 +1,18 @@
+.headerLink {
+    text-decoration: none;
+    color: #8b5cf6;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px 0px 0px;
+}
+
+.nav {
+    display: flex;
+    gap: 150px;
+}

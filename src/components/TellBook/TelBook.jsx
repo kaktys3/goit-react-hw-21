@@ -1,18 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { addFilter } from './Store/contacOperation.js'
-import './TelBook.css'
-import { contactDataRemove, fetchContacts, pushContact } from './Store/fetchContacts.jsx';
-import { filterList, selectAllContacts} from './Store/tellBookSelector.js';
+import { addFilter } from '../Store/contacOperation.js'
+import lg from './TelBook.module.css'
+import { filterList, isLogin, selectAllContacts } from '../Store/tellBookSelector.js';
+import { deleteContact, loadingData, supabasePushNewTodos } from '../Store/fetchContacts.jsx';
+import { Navigate } from 'react-router-dom';
 
-const ContactList = ({ name, number, id }) => {
-      const dispatch = useDispatch()
+const ContactList = ({ abonentData }) => {
+    const dispatch = useDispatch()
+    const tell = useSelector(selectAllContacts)
 
     return (
         <>
-            <div className='contact-box' >
-                <li className='contact'>{`${name} ${number}`}</li>
-                <button onClick={() => dispatch(contactDataRemove(id))}>видалити контакт</button>
+            <div className={lg['contact-box']} >
+                <li className={lg.contact}>{`${abonentData.name} ${abonentData.number}`}</li>
+                <button onClick={() => dispatch(deleteContact({ id: abonentData.id, allContacts: tell }))}>видалити контакт</button>
             </div>
         </>
     )
@@ -26,8 +28,17 @@ export default function TelBook() {
     const dispatch = useDispatch()
 
     const addContacts = (name, number) => {
-        dispatch(pushContact({ name: name, number: number}))
+        dispatch(supabasePushNewTodos([...tell, { id: crypto.randomUUID(), name: name, number: number }]))
     }
+
+    const isLoginUser = useSelector(isLogin)
+
+    if (!isLoginUser) {
+        return <Navigate to='/login' replace />
+    }
+
+
+    console.log(tell)
 
     const handleSubmit = (e) => {
         e.preventDefault()
@@ -43,14 +54,14 @@ export default function TelBook() {
     }
 
     useEffect(() => {
-        dispatch(fetchContacts())
+        dispatch(loadingData())
     }, [])
 
     return (
-        <>
-            <h1 className="title-form">Ponebook</h1>
-            <form className='add-tel-form' onSubmit={handleSubmit}>
-                <label className='tel-name'>
+        <div className={lg.container}>
+            <h1 className={lg['title-form']}>Ponebook</h1>
+            <form className={lg['add-tel-form']} onSubmit={handleSubmit}>
+                <label className={lg['tel-name']}>
                     Name
                     <input
                         onChange={(e) => setName(e.target.value)}
@@ -63,7 +74,7 @@ export default function TelBook() {
                     />
                 </label>
 
-                <label className='tel-number'>
+                <label className={lg['tel-number']}>
                     Number
                     <input
                         onChange={(e) => setNumber(e.target.value)}
@@ -75,18 +86,18 @@ export default function TelBook() {
                         required
                     />
                 </label>
-                <button type='submit' className='submit'>Add contact</button>
+                <button type='submit' className={lg.submit}>Add contact</button>
             </form>
             <h1>Contacts</h1>
             <div>
                 <p>Find contacts by name</p>
                 <input type="text" name='filter' onChange={(e) => dispatch(addFilter(e.target.value))} />
             </div>
-            <ul className="tel-list">
-            {list.map((contact, index) => (
-                <ContactList key={index} name={contact.name} number={contact.number} id={contact.id} />
+            <ul className={lg['tel-list']}>
+                {list.map((contact, index) => (
+                    <ContactList key={index} abonentData={contact} />
                 ))}
             </ul>
-        </>
+        </div>
     )
 }
